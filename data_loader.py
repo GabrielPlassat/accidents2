@@ -205,46 +205,110 @@ def load_full_baac(years=range(2018, 2025), data_dir="."):
     )
 
 
+
 # ════════════════════════════════════════════════════════════════
-# EXTRACTION RÉSUMÉS 2010-2017
+# DONNÉES ANNUELLES EMBARQUÉES (ex-fichiers 2009–2024.csv)
+# Extraites une fois des fichiers source, intégrées ici pour éviter
+# tout fichier CSV volumineux dans le repo GitHub.
+# Source : data.gouv.fr — résumés annuels accidents corporels
 # ════════════════════════════════════════════════════════════════
-def load_summary_year(year, data_dir="."):
-    """Charge et analyse un fichier résumé annuel (2010-2017)."""
-    f = os.path.join(data_dir, f"{year}.csv")
-    df = pd.read_csv(f, sep=";", encoding="utf-8", low_memory=False)
-    type_col = next((c for c in df.columns if "Type Accident" in c), None)
-    if type_col is None:
-        return None
-    acc = df.groupby("Id_accident").agg(
-        type_acc=(type_col, "first"),
-        territoire=("Lieu Admin Actuel - Territoire Nom", "first"),
-        age_veh_moy=("Age véhicule", "mean"),
-    ).reset_index()
-    n_mort  = (acc["type_acc"].str.contains("mortel", case=False, na=False) &
-               ~acc["type_acc"].str.contains("non mortel", case=False, na=False)).sum()
-    n_grave = acc["type_acc"].str.contains("grave non mortel", case=False, na=False).sum()
-    n_leger = acc["type_acc"].str.contains("léger|leger", case=False, na=False).sum()
-    cat_counts = df.groupby("Catégorie véhicule")["Id_accident"].nunique().to_dict()
-    return {
-        "annee": year, "accidents": len(acc),
-        "acc_mortels": int(n_mort), "acc_graves": int(n_grave),
-        "acc_legers": int(n_leger),
-        "age_veh_moy": round(acc["age_veh_moy"].mean(), 1),
-        "cat_veh": cat_counts, "source": "Résumé annuel",
-    }
+SUMMARY_ANNUELS = {
+    2009: {"accidents":74512,"acc_mortels":4169,"acc_graves":28469,"acc_legers":41874,"vt":59007,"cyclo":13859,"moto_lourde":11089,"moto_legere":6321,"vu":6060,"pl":3324,"tc":1262,"autres":1630},
+    2010: {"accidents":69444,"acc_mortels":3940,"acc_graves":25988,"acc_legers":39516,"vt":55188,"cyclo":12022,"moto_lourde":10293,"moto_legere":5841,"vu":5850,"pl":3361,"tc":1096,"autres":1584},
+    2011: {"accidents":67031,"acc_mortels":3837,"acc_graves":25588,"acc_legers":37606,"vt":53064,"cyclo":10911,"moto_lourde":10708,"moto_legere":5743,"vu":5764,"pl":3218,"tc":1139,"autres":1471},
+    2012: {"accidents":62345,"acc_mortels":3612,"acc_graves":23297,"acc_legers":35436,"vt":49274,"cyclo":9652,"moto_lourde":9729,"moto_legere":5322,"vu":5520,"pl":3007,"tc":1086,"autres":1426},
+    2013: {"accidents":58494,"acc_mortels":3209,"acc_graves":22528,"acc_legers":32757,"vt":46255,"cyclo":8245,"moto_lourde":9344,"moto_legere":4790,"vu":5398,"pl":2843,"tc":1013,"autres":1427},
+    2014: {"accidents":59737,"acc_mortels":3358,"acc_graves":22678,"acc_legers":33701,"vt":47265,"cyclo":8351,"moto_lourde":9800,"moto_legere":4786,"vu":5372,"pl":2813,"tc":943,"autres":1563},
+    2015: {"accidents":58465,"acc_mortels":3344,"acc_graves":22937,"acc_legers":32184,"vt":46625,"cyclo":7804,"moto_lourde":9699,"moto_legere":4420,"vu":5260,"pl":2785,"tc":976,"autres":1324},
+    2016: {"accidents":59186,"acc_mortels":3437,"acc_graves":23214,"acc_legers":32535,"vt":47791,"cyclo":7299,"moto_lourde":9668,"moto_legere":4442,"vu":5304,"pl":2861,"tc":963,"autres":1235},
+    2017: {"accidents":60429,"acc_mortels":3379,"acc_graves":24089,"acc_legers":32961,"vt":49029,"cyclo":6422,"moto_lourde":10807,"moto_legere":4455,"vu":4856,"pl":2892,"tc":948,"autres":1363},
+    2018: {"accidents":57531,"acc_mortels":3225,"acc_graves":19203,"acc_legers":35103,"vt":45086,"cyclo":6692,"moto_lourde":9855,"moto_legere":4463,"vu":5847,"pl":2882,"tc":853,"autres":1653},
+    2019: {"accidents":57787,"acc_mortels":3226,"acc_graves":17647,"acc_legers":36914,"vt":44863,"cyclo":6597,"moto_lourde":9720,"moto_legere":4270,"vu":5942,"pl":2811,"tc":880,"autres":1865},
+    2020: {"accidents":46403,"acc_mortels":2542,"acc_graves":14307,"acc_legers":29554,"vt":35632,"cyclo":5777,"moto_lourde":7406,"moto_legere":3445,"vu":4949,"pl":2161,"tc":612,"autres":1474},
+    2021: {"accidents":54917,"acc_mortels":2941,"acc_graves":16167,"acc_legers":35809,"vt":42679,"cyclo":7049,"moto_lourde":8768,"moto_legere":3862,"vu":6348,"pl":2592,"tc":735,"autres":1630},
+    2022: {"accidents":53607,"acc_mortels":3550,"acc_graves":19260,"acc_legers":30797,"vt":41720,"cyclo":5937,"moto_lourde":8654,"moto_legere":3709,"vu":6342,"pl":2513,"tc":808,"autres":1524},
+    2023: {"accidents":54822,"acc_mortels":3398,"acc_graves":19271,"acc_legers":32153,"vt":41375,"cyclo":5427,"moto_lourde":8948,"moto_legere":3568,"vu":6431,"pl":2484,"tc":827,"autres":1492},
+    2024: {"accidents":54402,"acc_mortels":3432,"acc_graves":19126,"acc_legers":31951,"vt":40718,"cyclo":5047,"moto_lourde":8875,"moto_legere":3301,"vu":6620,"pl":2361,"tc":931,"autres":1391},
+}
 
 
 def build_summary_stats_2010_2017(data_dir="."):
-    """DataFrame des stats détaillées 2010-2017 depuis les résumés."""
+    """DataFrame des stats de gravité 2010–2017 depuis les données embarquées."""
     rows = []
     for year in range(2010, 2018):
-        d = load_summary_year(year, data_dir)
+        d = SUMMARY_ANNUELS.get(year, {})
         if d:
-            rows.append(d)
+            rows.append({
+                "annee": year,
+                "accidents": d["accidents"],
+                "acc_mortels": d["acc_mortels"],
+                "acc_graves": d["acc_graves"],
+                "acc_legers": d["acc_legers"],
+            })
     return pd.DataFrame(rows)
 
 
 # ════════════════════════════════════════════════════════════════
+# TENDANCE VÉHICULES IMPLIQUÉS 2009-2024
+# ════════════════════════════════════════════════════════════════
+def build_vehicle_trend_2010_2024(data_dir="."):
+    """
+    Série temporelle véhicules impliqués par catégorie harmonisée.
+    2009-2017 : données embarquées (SUMMARY_ANNUELS).
+    2018-2024 : depuis les fichiers BAAC si disponibles,
+                sinon depuis les données embarquées.
+    """
+    rows = []
+
+    # ── 2009-2017 : données embarquées ─────────────────────────
+    cat_map = {
+        "vt": "Voiture (VP)",
+        "cyclo": "Cyclomoteur/Vélo",
+        "moto_lourde": "Moto >125cm³",
+        "moto_legere": "Moto 50-125cm³",
+        "vu": "Utilitaire (VUL)",
+        "pl": "PL >3.5T",
+        "tc": "Bus/Car",
+        "autres": "Autre",
+    }
+    for year in range(2009, 2018):
+        d = SUMMARY_ANNUELS.get(year, {})
+        for key, label in cat_map.items():
+            if key in d and d[key] > 0:
+                rows.append({"annee": year, "categorie": label, "nb": d[key]})
+
+    # ── 2018-2024 : BAAC si dispo, sinon embarqué ──────────────
+    catv_mapping_new = {
+        7: "Voiture (VP)", 1: "Cyclomoteur/Vélo", 2: "Cyclomoteur/Vélo",
+        32: "Moto >125cm³", 33: "Moto >125cm³",
+        31: "Moto 50-125cm³", 30: "Cyclomoteur/Vélo",
+        10: "Utilitaire (VUL)", 13: "PL >3.5T", 14: "PL >3.5T",
+        15: "Bus/Car", 37: "Bus/Car",
+        40: "EDP motorisé", 41: "EDP non motorisé",
+        80: "VAE/Vélo", 42: "VAE/Vélo",
+    }
+    for year in range(2018, 2025):
+        baac_path = os.path.join(data_dir, f"vehicules{year}.csv")
+        if os.path.exists(baac_path):
+            try:
+                v_sep = "," if year == 2018 else ";"
+                df_v = pd.read_csv(baac_path, sep=v_sep, encoding="utf-8", low_memory=False)
+                df_v["catv"] = pd.to_numeric(df_v["catv"], errors="coerce")
+                df_v["cat_label"] = df_v["catv"].map(catv_mapping_new).fillna("Autre")
+                for cat, n in df_v.groupby("cat_label")["Num_Acc"].count().items():
+                    rows.append({"annee": year, "categorie": cat, "nb": int(n)})
+                continue
+            except Exception:
+                pass
+        # Fallback sur données embarquées
+        d = SUMMARY_ANNUELS.get(year, {})
+        for key, label in cat_map.items():
+            if key in d and d[key] > 0:
+                rows.append({"annee": year, "categorie": label, "nb": d[key]})
+
+    df = pd.DataFrame(rows)
+    return df.groupby(["annee", "categorie"])["nb"].sum().reset_index()
+
 # KPIs ANNUELS UNIFIÉS
 # ════════════════════════════════════════════════════════════════
 def build_yearly_kpis(year, data_dir="."):
@@ -356,54 +420,6 @@ def build_correlation_dataset(data_dir="."):
 
 # ════════════════════════════════════════════════════════════════
 # TENDANCE VÉHICULES IMPLIQUÉS 2010-2024
-# ════════════════════════════════════════════════════════════════
-def build_vehicle_trend_2010_2024(data_dir="."):
-    """
-    Série temporelle véhicules impliqués par catégorie harmonisée,
-    couvrant 2010-2017 (résumés) et 2018-2024 (BAAC).
-    """
-    rows = []
-    catv_mapping_old = {
-        "VT": "Voiture (VP)", "Cyclo": "Cyclomoteur/Vélo",
-        "Moto lourde": "Moto >125cm³", "Moto légère": "Moto 50-125cm³",
-        "VU": "Utilitaire (VUL)", "PL": "PL >3.5T",
-        "TC": "Bus/Car", "Autres": "Autre",
-    }
-    for year in range(2010, 2018):
-        try:
-            f = os.path.join(data_dir, f"{year}.csv")
-            df = pd.read_csv(f, sep=";", encoding="utf-8", low_memory=False)
-            cat_counts = df.groupby("Catégorie véhicule")["Id_accident"].nunique()
-            for cat, n in cat_counts.items():
-                rows.append({"annee": year,
-                             "categorie": catv_mapping_old.get(cat, cat),
-                             "nb": int(n)})
-        except Exception as e:
-            print(f"[WARN] résumé véhicules {year}: {e}")
-
-    catv_mapping_new = {
-        7: "Voiture (VP)", 1: "Cyclomoteur/Vélo", 2: "Cyclomoteur/Vélo",
-        32: "Moto >125cm³", 33: "Moto >125cm³",
-        31: "Moto 50-125cm³", 30: "Cyclomoteur/Vélo",
-        10: "Utilitaire (VUL)", 13: "PL >3.5T", 14: "PL >3.5T",
-        15: "Bus/Car", 37: "Bus/Car",
-        40: "EDP motorisé", 41: "EDP non motorisé",
-        80: "VAE/Vélo", 42: "VAE/Vélo",
-    }
-    for year in range(2018, 2025):
-        try:
-            v_sep = "," if year == 2018 else ";"
-            df_v = pd.read_csv(os.path.join(data_dir, f"vehicules{year}.csv"),
-                               sep=v_sep, encoding="utf-8", low_memory=False)
-            df_v["catv"] = pd.to_numeric(df_v["catv"], errors="coerce")
-            df_v["cat_label"] = df_v["catv"].map(catv_mapping_new).fillna("Autre")
-            cat_counts = df_v.groupby("cat_label")["Num_Acc"].count()
-            for cat, n in cat_counts.items():
-                rows.append({"annee": year, "categorie": cat, "nb": int(n)})
-        except Exception as e:
-            print(f"[WARN] véhicules BAAC {year}: {e}")
-
-    df = pd.DataFrame(rows)
     return df.groupby(["annee", "categorie"])["nb"].sum().reset_index()
 
 
