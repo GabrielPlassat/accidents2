@@ -1,0 +1,23 @@
+annee;radars_fixes;radars_mobiles_hibou;radars_autonomes_travaux;radars_feux_rouges;radars_voitures_embarques;total_radars;pv_emis_millions;recettes_amendes_ME;source
+2003;48;0;0;0;0;48;0.1;4.8;fiches-auto.fr / Cour des Comptes
+2004;228;165;0;0;0;393;1.2;30;fiches-auto.fr / Cour des Comptes
+2005;689;313;0;0;0;1002;3.5;68;fiches-auto.fr / Cour des Comptes
+2006;822;457;0;0;0;1279;5.1;96;fiches-auto.fr / Cour des Comptes
+2007;1137;721;0;0;0;1858;7.2;147;fiches-auto.fr / Cour des Comptes
+2008;1473;827;0;0;0;2300;8.9;247;fiches-auto.fr / Cour des Comptes
+2009;1661;932;0;0;0;2593;9.8;400;fiches-auto.fr / Cour des Comptes
+2010;1823;933;0;0;0;2756;11.2;477;fiches-auto.fr / Cour des Comptes
+2011;2100;933;0;0;0;3033;12.2;641;fiches-auto.fr / Cour des Comptes (+ moto-journal.fr)
+2012;2345;929;0;376;0;3650;12.5;730;fiches-auto.fr / Cour des Comptes
+2013;2473;867;0;450;0;3790;11.2;579;fiches-auto.fr / Cour des Comptes (bonnets rouges -130 radars)
+2014;2511;841;0;580;125;4057;13.1;740;radars-auto.com / Cour des Comptes (record à l'époque)
+2015;2541;787;22;640;125;4115;13.2;789;radars-auto.com / Cour des Comptes
+2016;2525;884;202;670;125;4406;14.5;920;permisapoints.fr / Cour des Comptes
+2017;2509;884;275;710;125;4503;17.1;1014;radars-auto.com (record historique)
+2018;2499;904;262;720;125;4510;14.3;864;fiches-auto.fr (gilets jaunes : destructions)
+2019;2137;950;249;680;200;4216;12.6;760;fiches-auto.fr (post gilets jaunes)
+2020;2326;905;249;700;200;4380;10.5;743;fiches-auto.fr (COVID-19 confinements)
+2021;2393;973;312;750;498;4926;15.1;859;fiches-auto.fr / Cour des Comptes (voitures radar privées)
+2022;2482;999;340;760;498;4530;16.1;928;ANTAI.gouv.fr / Cour des Comptes
+2023;2541;999;330;770;498;4530;24.7;965;ANTAI.gouv.fr (flashs totaux dont 2/3 PV)
+2024;2600;999;330;800;498;4753;20.9;889;securite-routiere.gouv.fr (taux disponibilité 81%)
